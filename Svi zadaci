@@ -1,0 +1,410 @@
+//ZADATAK 8 LV2
+#include "LedControl.h"
+LedControl lc =  LedControl(12,  11, 10, 1);
+void setup()  {
+lc.shutdown(  0,  false );
+lc.setIntensity(  0,  8 );
+lc.clearDisplay(  0 );
+}
+int x=3,  y=4,  dx=1, dy=1;
+void loop() {
+lc.setLed(0,  x,  y,  LOW);
+if (  (dx<0 &&  x==0) ||  
+(dx>0 &&  x==7) )
+dx=-dx;
+if (  (dy<0 &&  y==0) ||
+(dy>0 &&  y==7) ) 
+dy=-dy;
+x +=  dx;
+y +=  dy;
+lc.setLed(0,  x,  y,  HIGH);
+delay(200);
+}
+
+/*
+//ZADATAK 7 LV2
+int numArray[10][7]  = { { 0,0,0,0,0,0,1 },    //    0
+{ 1,0,0,1,1,1,1 },    //    1
+{ 0,0,1,0,0,1,0 },    //    2
+{ 0,0,0,0,1,1,0 },    //    3
+{ 1,0,0,1,1,0,0 },    //    4
+{ 0,1,0,0,1,0,0 },    //    5
+{ 0,1,0,0,0,0,0 },    //    6
+{ 0,0,0,1,1,1,1 },    //    7
+{ 0,0,0,0,0,0,0 },    //    8
+{ 0,0,0,0,1,0,0 }}; //    9
+#include "TimerOne.h"
+void setup( ) {
+for(  int i=0 ; i<11  ; i++ ) {
+pinMode(  i+2,  OUTPUT  );  }
+Timer1.initialize(  5000  );  //  microseconds
+Timer1.attachInterrupt( znamenka  );
+}
+
+volatile int broj;
+volatile int select;
+void znamenka(  ) {
+digitalWrite( 5 - select ,  HIGH  );  //  ugasi trenutno  svjetleći pokaznik
+if( ++select >  3 ) { select =  0;  }       //  promjena  indeksa pokaznika
+int z = int(  broj  / pow(  10  , select )  ) % 10; //  znamenka
+for(  int i=0 ; i<7 ; i++ ) {
+digitalWrite( i+6 , numArray[ z ][  i ] );  //  ugasi/upali i-ti  segment
+}
+digitalWrite( 5 - select ,  LOW );  //  upali pokaznik
+}
+void loop(  ) {
+broj++; //  broj  koji  se  prikazuje na  4-digit 7-segmentnom  pokazniku
+delay(  1000  );
+}
+
+/*
+//ZADATAK 6 LV2
+#include <TimerOne.h>
+volatile byte select, segment;
+void setup(){
+for(int i=0; i<11; i++){
+  pinMode(i+2, OUTPUT);
+  }
+  Timer1.initialize(1000);
+  Timer1.attachInterrupt(ms);  
+}
+void loop(){
+  
+}
+void ms(){
+  digitalWrite(select+2,HIGH);
+  if(++select>3){select=0;}
+  switch(select){
+    case 0: segment=0b11000000; break;
+    case 1: segment=0b11111001; break;
+    case 2: segment=0b10100100; break;
+    case 3: segment=0b10110000; break;
+  }
+  for(int i=0; i<7; i++){
+    digitalWrite(i+6, segment & (1<<i));
+  }
+  digitalWrite(select+2, LOW);
+}
+
+
+
+/*
+//ZADATAK 5 LV2
+#include <TimerOne.h>
+volatile long t;
+volatile bool stanje, ispis;
+void setup(){
+  pinMode(2, INPUT_PULLUP);
+  pinMode(3, INPUT_PULLUP);
+  Serial.begin(9600);
+  Timer1.initialize(100);
+  Timer1.attachInterrupt(stoMicro);
+  attachInterrupt(digitalPinToInterrupt(2), tipkaD2, RISING);
+  attachInterrupt(digitalPinToInterrupt(3), tipkaD3, RISING);
+}
+void stoMicro(){t++;}
+void tipkaD2(){
+  if(stanje = !stanje){
+    t=0;
+    Timer1.restart();
+  }else{
+    Timer1.stop();
+  } 
+}
+
+void tipkaD3(){
+  ispis = true;
+}
+void loop(){
+  if(ispis){
+    int ms = t/10;
+    int ss = ms/1000;
+    int mm = ss/60;
+    Serial.print(mm);
+    Serial.print(":");
+    Serial.print(ss);
+    Serial.print(":");
+    Serial.print(ms);
+    Serial.print("\n");
+    ispis = false;
+  }
+  
+}
+  
+
+/*
+//ZADATAK 4 LV2
+#include <TimerOne.h>
+void setup(){
+  pinMode(2, INPUT_PULLUP);
+  for(int i =0; i<6; i++){
+    pinMode(i+4, OUTPUT);
+    digitalWrite(i+4, LOW);
+  }
+  Timer1.initialize(50000);
+  Timer1.attachInterrupt(sekunda);
+  attachInterrupt(digitalPinToInterrupt(2),tipka,RISING);
+}
+
+volatile bool smjer;
+volatile int index;
+void tipka(){
+  smjer = !smjer;
+}
+
+void sekunda(){
+  digitalWrite(index+4, LOW);
+  if(smjer){
+    if(++index>5){
+      index = 0;
+  }
+}else{
+  if(--index<0){
+    index=5;
+  }
+}
+digitalWrite(index+4, HIGH);
+}
+void loop(){}
+
+
+
+/*
+
+//ZADTATAK 3 LV2
+#include <TimerOne.h>
+volatile bool state;
+
+void setup(){
+pinMode(13, OUTPUT);
+Timer1.initialize(500000);
+Timer1.attachInterrupt(Ledica);
+  
+}
+void Ledica(){  
+  digitalWrite(13,state =! state);
+}
+
+void loop(){
+  }
+
+//ZADATAK 2 LV2
+/*
+volatile bool state, bInterrupt;
+volatile unsigned long cnt=0;
+
+void setup() {
+  Serial.begin(9600);
+pinMode(13, OUTPUT);
+pinMode(2, INPUT_PULLUP);
+attachInterrupt(digitalPinToInterrupt(2), Ledica, RISING);
+}
+
+
+void loop(){
+  if(bInterrupt){
+    Serial.print("interrupt ");
+    Serial.println(cnt++);
+    delay(50);
+    bInterrupt=false;
+  }  
+}
+void Ledica(){
+  if(!bInterrupt){
+  bInterrupt= true;
+  digitalWrite(13,state =! state);
+    
+  }
+}
+
+
+
+//ZADATAK 1 LV2
+/*
+volatile bool state;
+void setup() {
+pinMode(13, OUTPUT);
+pinMode(2, INPUT_PULLUP);
+attachInterrupt(digitalPinToInterrupt(2), Ledica, RISING);
+}
+
+void Ledica(){
+  digitalWrite(13, state =! state);
+}
+
+void loop (){
+
+}
+
+
+
+
+
+
+
+
+/*
+//ZADATAK 2
+void setup() {
+ 
+for(int i=0; i<4; i++){
+pinMode(i+2, INPUT_PULLUP);
+pinMode(i+7, OUTPUT);
+}
+Serial.begin(9600);
+
+}
+void loop (){
+
+for(int i =0; i<4; i++){
+byte btn = digitalRead(i+2);
+if(btn==0){
+  digitalWrite(i+7,HIGH);
+}
+else {
+  digitalWrite(i+7,LOW);
+}
+  Serial.print(btn);
+}
+Serial.print("\n");
+ 
+  }
+
+
+
+/*
+//ZADATAK 1
+void setup() {
+  // put your setup code here, to run once:
+
+  
+pinMode(2, INPUT_PULLUP);
+pinMode(4, OUTPUT);
+Serial.begin(9600);
+}
+
+void loop() {
+  if(digitalRead(2)==0){
+    digitalWrite(4, HIGH);
+    Serial.println("Relej Upaljen");
+    
+  }else
+  {
+        digitalWrite(4, LOW);
+    Serial.println("Relej Upaljen");
+
+    
+  }
+}
+
+//ZADATAK 2
+
+
+
+
+
+
+
+//ZADATAK 3
+void setup() {
+ 
+for(int i=7; i<13; i++){
+pinMode(i, OUTPUT);
+}
+Serial.begin(9600);
+
+}
+void loop (){
+
+int x = analogRead(A0);
+int y = map(x, 200,1023,0,6);
+upaliLedice(y);
+  
+  }
+
+  void upaliLedice(int n){
+
+    for (int i=0; i<6;i++){
+      digitalWrite(i+7,LOW);
+    }
+    for(int i=0; i<n; i++){
+      digitalWrite(i+7, HIGH);
+    }
+      
+  }
+
+
+//ZADATAK4
+void setup() {
+ 
+for(int i=0; i<6; i++){
+
+
+  pinMode(i+7, OUTPUT);  
+}
+Serial.begin(9600);
+}
+void upaliLedice(int n){
+
+  for(int i=0;i<6;i++){
+    digitalWrite(i+7,LOW);
+  }
+
+  for(int i=0;i<n;i++){
+    digitalWrite(i+7, HIGH);
+  }
+  
+}
+
+void loop() {
+
+int x = analogRead(A0);
+int y = analogRead(A1);
+int Vx = map(x,0,1023,0,6);
+int Vy = map(x,0,1023,0,6); 
+
+upaliLedice(Vy);
+  }
+
+
+
+//ZADATAK 5
+void setup() {
+ 
+pinMode(2, INPUT_PULLUP);
+pinMode(3, INPUT_PULLUP);
+pinMode(4, INPUT_PULLUP);
+Serial.begin(9600);
+}
+
+void loop() {
+  if(digitalRead(2)==0){
+    analogWrite(6,0);
+  }else if(digitalRead(3)==0){
+    analogWrite(6,150);
+  }else if(digitalRead(4)==0){
+    analogWrite(6,255);
+  }
+ 
+  }
+
+
+
+
+
+//ZADATAK 6
+void setup() {
+ 
+Serial.begin(9600);
+}
+
+void loop() {
+  int dutyCycle_R = analogRead(A0)/4;
+  int dutyCycle_G = analogRead(A1)/4;
+  int dutyCycle_B = (dutyCycle_R+dutyCycle_G)/2;
+  
+analogWrite(8, dutyCycle_R);
+analogWrite(9, dutyCycle_G);
+analogWrite(10, dutyCycle_B);
+ 
+  }*/
